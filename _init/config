@@ -1,0 +1,11 @@
+Package: rep_aus_invoice
+Description: Australian Tax Invoice
+Name: Australian Tax Invoice
+Filename: rep107
+Author: Paul Shipley <paul@paulshipley.id.au>
+Maintenance: Paul Shipley <paul@paulshipley.id.au>
+Homepage: paulshipley.id.au
+Type: extension
+InstallPath: modules/rep_aus_invoice
+Version: 2.4.0-1
+
