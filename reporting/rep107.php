@@ -22,51 +22,34 @@ $path_to_root="..";
 include_once($path_to_root . "/includes/session.inc");
 include_once($path_to_root . "/includes/date_functions.inc");
 include_once($path_to_root . "/includes/data_checks.inc");
-
-// PS ----------------------------------------------------------------------------------------------------
-function get_customer_trans_details_aus($debtor_trans_type, $debtor_trans_no)
-{
-if (!is_array($debtor_trans_no))
-	$debtor_trans_no = array( 0=>$debtor_trans_no );
-
-	$sql = "SELECT line.*,
-		line.unit_price AS FullUnitPrice,
-		line.unit_price-line.unit_tax AS UnitPriceExTax,
-		line.description As StockDescription,
-		item.units, item.mb_flag
-		FROM "
-			.TB_PREF."debtor_trans_details line,"
-			.TB_PREF."stock_master item
-		WHERE (";
-
-	$tr=array();
-	foreach ($debtor_trans_no as $trans_no)
-		$tr[] = 'debtor_trans_no='.db_escape($trans_no);
-
-	$sql .= implode(' OR ', $tr);
-
-
-	$sql.=	") AND debtor_trans_type=".db_escape($debtor_trans_type)."
-		AND item.stock_id=line.stock_id
-		ORDER BY id";
-	return db_query($sql, "The debtor transaction detail could not be queried");
-}
-
+// include_once($path_to_root . "/sales/includes/sales_db.inc");  // PS
 
 //----------------------------------------------------------------------------------------------------
-function get_invoice_range($from, $to)
+function get_invoice_range($from, $to, $currency=false)
 {
 	global $SysPrefs;
 
 	$ref = ($SysPrefs->print_invoice_no() == 1 ? "trans_no" : "reference");
 
-	$sql = "SELECT trans.trans_no, trans.reference
-		FROM ".TB_PREF."debtor_trans trans 
-			LEFT JOIN ".TB_PREF."voided voided ON trans.type=voided.type AND trans.trans_no=voided.id
-		WHERE trans.type=".ST_SALESINVOICE
+	$sql = "SELECT trans.trans_no, trans.reference";
+
+//  if($currency !== false)
+//		$sql .= ", cust.curr_code";
+
+	$sql .= " FROM ".TB_PREF."debtor_trans trans 
+			LEFT JOIN ".TB_PREF."voided voided ON trans.type=voided.type AND trans.trans_no=voided.id";
+
+	if ($currency !== false)
+		$sql .= " LEFT JOIN ".TB_PREF."debtors_master cust ON trans.debtor_no=cust.debtor_no";
+
+	$sql .= " WHERE trans.type=".ST_SALESINVOICE
 			." AND ISNULL(voided.id)"
- 			." AND trans.trans_no BETWEEN ".db_escape($from)." AND ".db_escape($to)			
-		." ORDER BY trans.tran_date, trans.$ref";
+ 		." AND trans.trans_no BETWEEN ".db_escape($from)." AND ".db_escape($to);			
+
+	if ($currency !== false)
+		$sql .= " AND cust.curr_code=".db_escape($currency);
+
+	$sql .= " ORDER BY trans.tran_date, trans.$ref";
 
 	return db_query($sql, "Cant retrieve invoice range");
 }
@@ -117,7 +100,12 @@ function print_invoices()
 	if ($orientation == 'L')
 		recalculate_cols($cols);
 
+	$range = Array();
+	if ($currency == ALL_TEXT)
 	$range = get_invoice_range($from, $to);
+	else
+		$range = get_invoice_range($from, $to, $currency);
+
 	while($row = db_fetch($range))
 	{
 			if (!exists_customer_trans(ST_SALESINVOICE, $row['trans_no']))
@@ -128,9 +116,10 @@ function print_invoices()
 			if ($customer && $myrow['debtor_no'] != $customer) {
 				continue;
 			}
-			if ($currency != ALL_TEXT && $myrow['curr_code'] != $currency) {
-				continue;
-			}
+//			if ($currency != ALL_TEXT && $myrow['curr_code'] != $currency) {
+//				continue;
+//			}
+			
 			$baccount = get_default_bank_account($myrow['curr_code']);
 			$params['bankaccount'] = $baccount['id'];
 
@@ -193,6 +182,11 @@ function print_invoices()
 				$rep->TextCol($c++, $c,	$myrow2['stock_id'], -2);
 				$oldrow = $rep->row;
 				$rep->TextColLines($c++, $c, $myrow2['StockDescription'], -2);
+				if (!empty($SysPrefs->prefs['long_description_invoice']) && !empty($myrow2['StockLongDescription']))
+				{
+					$c--;
+					$rep->TextColLines($c++, $c, $myrow2['StockLongDescription'], -2);
+				}
 				$newrow = $rep->row;
 				$rep->row = $oldrow;
 				if ($Net != 0.0 || !is_service($myrow2['mb_flag']) || !$SysPrefs->no_zero_lines_amount())
@@ -313,7 +307,7 @@ function print_invoices()
 			$rep->Font('bold');
 			if (!$myrow['prepaid']) $rep->Font('bold');
 				$rep->TextCol(3, 7, $DisplayTax ? _("TOTAL INVOICE INCLUDES GST") : _("TOTAL INVOICE"), - 2);  // PS
-			$rep->TextCol(7, 8, $DisplayTotal, -2);
+			$rep->TextCol(7, 8, $DisplayTotal, -2);  // PS
 			if ($rep->formData['prepaid'])
 			{
 				$rep->NewLine();

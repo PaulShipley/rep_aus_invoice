@@ -48,10 +48,10 @@ function print_sales_orders()
 	$orientation = ($orientation ? 'L' : 'P');
 	$dec = user_price_dec();
 
-	$cols = array(4, 60, 225, 300, 325, 355, 400, 450, 515);  // PS
+	$cols = array(4, 60, 225, 300, 325, 385, 450, 515);
 
 	// $headers in doctext.inc
-	$aligns = array('left',	'left',	'right', 'center', 'right', 'right', 'right', 'right');  // PS
+	$aligns = array('left',	'left',	'right', 'left', 'right', 'right', 'right');
 
 	$params = array('comments' => $comments, 'print_quote' => $print_as_quote);
 
