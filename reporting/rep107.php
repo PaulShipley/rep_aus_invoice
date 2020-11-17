@@ -24,6 +24,37 @@ include_once($path_to_root . "/includes/date_functions.inc");
 include_once($path_to_root . "/includes/data_checks.inc");
 // include_once($path_to_root . "/sales/includes/sales_db.inc");  // PS
 
+// PS ----------------------------------------------------------------------------------------------------
+function get_customer_trans_details_aus($debtor_trans_type, $debtor_trans_no)
+{
+	if (!is_array($debtor_trans_no))
+		$debtor_trans_no = array( 0=>$debtor_trans_no );
+
+	$sql = "SELECT line.*,
+		line.unit_price AS FullUnitPrice,
+		line.unit_price-line.unit_tax AS UnitPriceExTax,
+		line.description As StockDescription,
+		item.units, item.mb_flag
+		FROM "
+	.TB_PREF."debtor_trans_details line,"
+	.TB_PREF."stock_master item
+		WHERE (";
+
+	$tr=array();
+	foreach ($debtor_trans_no as $trans_no)
+		$tr[] = 'debtor_trans_no='.db_escape($trans_no);
+
+	$sql .= implode(' OR ', $tr);
+
+
+	$sql.=	") AND debtor_trans_type=".db_escape($debtor_trans_type)."
+		AND item.stock_id=line.stock_id
+		ORDER BY id";
+	return db_query($sql, "The debtor transaction detail could not be queried");
+}
+// PS ----------------------------------------------------------------------------------------------------
+
+
 //----------------------------------------------------------------------------------------------------
 function get_invoice_range($from, $to, $currency=false)
 {
