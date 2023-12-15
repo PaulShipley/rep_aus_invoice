@@ -84,7 +84,7 @@ function print_receipts()
 	$cur = get_company_Pref('curr_default');
 
 	if ($email == 0)
-	$rep = new FrontReport(_('RECEIPT'), "ReceiptBulk", user_pagesize(), 9, $orientation);
+		$rep = new FrontReport(_('RECEIPT'), "ReceiptBulk", user_pagesize(), 9, $orientation);
    	if ($orientation == 'L')
     	recalculate_cols($cols);
 
@@ -192,10 +192,10 @@ function print_receipts()
 			if ($email == 1)
 			{
 				$rep->End($email);
+			}
 		}
 	}
-	}
     if ($email == 0)
-	$rep->End();
+		$rep->End();
 }
 

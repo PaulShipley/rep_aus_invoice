@@ -71,17 +71,17 @@ function print_sales_orders()
 		$branch = get_branch($myrow["branch_code"]);
 
         if ($i == $from || $email == 1)
-			$rep = new FrontReport("", "", user_pagesize(), 9, $orientation);
-			if ($print_as_quote == 1)
-			{
-				$rep->title = _('QUOTE');
-				$rep->filename = "Quote" . $i . ".pdf";
-			}
-			else
-			{
-				$rep->title = _("SALES ORDER");
-				$rep->filename = "SalesOrder" . $i . ".pdf";
-			}
+            $rep = new FrontReport(_("SALES ORDER"), "SalesOrderBulk", user_pagesize(), 9, $orientation);
+        if ($print_as_quote == 1)
+        {
+            $rep->title = _('QUOTE');
+            $rep->filename = "Quote" . $i . ".pdf";
+        }
+        else
+        {
+            $rep->title = _("SALES ORDER");
+            $rep->filename = "SalesOrder" . $i . ".pdf";
+        }		
 		$rep->SetHeaderType('Header2');
 		$rep->currency = $cur;
 		$rep->Font();
@@ -204,8 +204,8 @@ function print_sales_orders()
 		}	
 		$rep->Font();
         if ($i == $to || $email == 1)
-			$rep->End($email);
+            $rep->End($email);
 		
-		}
+	}
 }
 

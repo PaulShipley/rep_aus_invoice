@@ -18,13 +18,13 @@
 
 	$Addr1 = array(
 			'title' => _("Charge To"),
-			'name' => @$this->formData['br_name'] ? $this->formData['br_name'] : @$this->formData['DebtorName'],
-			'address' => @$this->formData['br_address'] ? $this->formData['br_address'] : @$this->formData['address']
+			'name' => array_key_exists('br_name',$this->formData) ? $this->formData['br_name'] : (array_key_exists('DebtorName',$this->formData) ? $this->formData['DebtorName'] : ''),
+			'address' => array_key_exists('br_address',$this->formData) ? $this->formData['br_address'] : (array_key_exists('address',$this->formData) ? $this->formData['address'] : '')
 	);
 	$Addr2 = array(
 			'title' => _("Delivered To"),
-			'name' => @$this->formData['deliver_to'],
-			'address' => @$this->formData['delivery_address']
+			'name' => array_key_exists('deliver_to',$this->formData) ? $this->formData['deliver_to'] : '',
+			'address' => array_key_exists('delivery_address',$this->formData) ? $this->formData['delivery_address'] : ''
 	);
 
 	// default item column headers
@@ -74,7 +74,7 @@
 				_("Sales Person") => get_salesman_name($this->formData['salesman']),
 				//_("Your VAT no.") => $this->formData['tax_id'],  // PS
 				_("Our Order No") => $this->formData['order_no'],
-				_("Date of Sale") => sql2date(get_oldest_delivery_date($this->formData['trans_no'])),  // PS
+				_("Date of Sale") => sql2date(get_oldest_delivery_date(array_key_exists('trans_no',$this->formData) ? $this->formData['trans_no'] : '')),  // PS
 				_("Delivery Date") => sql2date($this->formData['delivery_date']),
 			);
 			break;
@@ -163,7 +163,7 @@
 				_("Customer's Reference") => $this->formData['supp_account_no'],
 				_("Type") =>$systypes_array[$this->formData["type"]],
 				//_("Your VAT no.") => $this->formData['tax_id'],  // PS
-				_("Our Order No") => $this->formData['order_'],  // PS
+				_("Our Order No") => array_key_exists('order_',$this->formData) ? $this->formData['order_'] : '',  // PS
 				_("Supplier's Reference") => '',
 				_("Due Date") => sql2date($this->formData['tran_date']),
 			);
@@ -251,7 +251,7 @@
 				_("Date of Sale") => '',  // PS
 				_("Delivery Date") => '',
 			);
-			$this->headers = array(_("Trans Type"), _("#"), _("Date"), _("DueDate"), _("Charges"),
+			$this->headers = array(_("Trans Type"), _("#"), _("Date"), _("DueDate"), _("Debits"),
 				_("Credits"), _("Allocated"), _("Outstanding"));
 	}
 
@@ -267,7 +267,7 @@
 	if (@$this->formData['bank_name'])
 		$Footer[] = _("Bank"). ": ".$this->formData['bank_name']. ", " . _("Bank Account") . ": " . $this->formData['bank_account_number'];
 
-	if (@$this->formData['payment_service'])	//payment link
+	if (array_key_exists('payment_service',$this->formData) ? $this->formData['payment_service'] : false)	//payment link
 	{
 		$amt = number_format($this->formData["ov_freight"] + $this->formData["ov_gst"] + $this->formData["ov_amount"], user_price_dec());
 		$service = $this->formData['payment_service'];

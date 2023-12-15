@@ -74,11 +74,11 @@
 			$this->AddImage($logo, $ccol, $this->row, 0, 40);
 		}
 		$this->NewLine();
-			$this->fontSize += 4;
-			$this->Font('bold');
-			$this->Text($ccol, $this->company['coy_name'], $icol);
-			$this->Font();
-			$this->fontSize -= 4;
+		$this->fontSize += 4;
+		$this->Font('bold');
+		$this->Text($ccol, $this->company['coy_name'], $icol);
+		$this->Font();
+		$this->fontSize -= 4;
 		// Document title
 		$this->SetTextColor(190, 190, 190);
 		$this->fontSize += 10;
@@ -123,7 +123,7 @@
 			$this->Text($c2col, $this->company['gst_no'], $mcol);
 			$this->NewLine();
 		}
-		if (@$this->formData['domicile'])
+		if (array_key_exists('domicile',$this->formData) ? $this->formData['domicile'] : false)
 		{
 			$this->Text($ccol, _("Domicile"), $c2col);
 			$this->Text($c2col, $this->company['domicile'], $mcol);

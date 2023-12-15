@@ -74,7 +74,7 @@ function get_invoice_range($from, $to, $currency=false)
 		$sql .= " LEFT JOIN ".TB_PREF."debtors_master cust ON trans.debtor_no=cust.debtor_no";
 
 	$sql .= " WHERE trans.type=".ST_SALESINVOICE
-			." AND ISNULL(voided.id)"
+		." AND ISNULL(voided.id)"
  		." AND trans.trans_no BETWEEN ".db_escape($from)." AND ".db_escape($to);			
 
 	if ($currency !== false)
@@ -133,7 +133,7 @@ function print_invoices()
 
 	$range = Array();
 	if ($currency == ALL_TEXT)
-	$range = get_invoice_range($from, $to);
+		$range = get_invoice_range($from, $to);
 	else
 		$range = get_invoice_range($from, $to, $currency);
 
@@ -174,8 +174,11 @@ function print_invoices()
 			// calculate summary start row for later use
 			$summary_start_row = $rep->bottomMargin + (15 * $rep->lineHeight);
 
+			$show_this_payment = $rep->formData['prepaid'] == 'partial'; // include payments invoiced here in summary
+
 			if ($rep->formData['prepaid'])
 			{
+				
 				$result = get_sales_order_invoices($myrow['order_']);
 				$prepayments = array();
 				while($inv = db_fetch($result))
@@ -356,7 +359,7 @@ function print_invoices()
 			$rep->Font();
 			if ($email == 1)
 			{
-				$rep->End($email);
+				$rep->End($email, sprintf(_("Invoice %s from %s"), $myrow['reference'], get_company_pref('coy_name')));
 			}
 	}
 	if ($email == 0)
