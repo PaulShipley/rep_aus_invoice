@@ -299,6 +299,7 @@ function print_invoices()
 			}	
 			$tax_items = get_trans_tax_details(ST_SALESINVOICE, $row['trans_no']);
 			$first = true;
+			$DisplayTax = 0;
     		while ($tax_item = db_fetch($tax_items))
     		{
     			if ($tax_item['amount'] == 0)
